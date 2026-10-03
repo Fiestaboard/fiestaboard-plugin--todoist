@@ -92,6 +92,14 @@ class TestErrors:
         todoist_api.fail(status=403)
         assert "403" in plugin.fetch_data().error
 
+    def test_new_sign_in_skips_cooldown_of_old_credential(self, plugin, todoist_api, token):
+        todoist_api.fail(status=403)
+        assert "403" in plugin.fetch_data().error
+        token.value = "test_reconnected_token"
+        result = plugin.fetch_data()
+        assert result.available
+        assert auth_header(todoist_api) == "Bearer test_reconnected_token"
+
     def test_429_uses_retry_after_and_cools_down(self, plugin, todoist_api, clock):
         todoist_api.fail(status=429, headers={"Retry-After": "120"})
         result = plugin.fetch_data()

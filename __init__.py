@@ -148,6 +148,7 @@ class TodoistPlugin(PluginBase):
         self._last_good_at = 0.0
         self._cooldown_until = 0.0
         self._cooldown_error: TodoistError | None = None
+        self._cooldown_token: str | None = None
 
     @property
     def plugin_id(self) -> str:
@@ -275,7 +276,11 @@ class TodoistPlugin(PluginBase):
 
             with self._lock:
                 try:
-                    if self._cooldown_error is not None and _monotonic() < self._cooldown_until:
+                    if (
+                        self._cooldown_error is not None
+                        and self._cooldown_token == token  # a new sign-in or token is tried at once
+                        and _monotonic() < self._cooldown_until
+                    ):
                         raise self._cooldown_error
                     try:
                         tasks = self._load_tasks(token, from_sign_in)
@@ -283,6 +288,7 @@ class TodoistPlugin(PluginBase):
                         if exc.cooldown > 0:
                             self._cooldown_until = _monotonic() + exc.cooldown
                             self._cooldown_error = exc
+                            self._cooldown_token = token
                         raise
                 except TodoistError as exc:
                     stale = self._stale_tasks() if exc.transient else None
