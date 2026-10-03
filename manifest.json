@@ -1,0 +1,230 @@
+{
+  "id": "todoist",
+  "name": "Todoist",
+  "version": "1.0.0",
+  "description": "Show what's on your Todoist plate: how many tasks are due today, how many are overdue, and the next task to do. Sign in with Todoist, or paste a personal API token.",
+  "author": "FiestaBoard Team",
+  "repository": "https://github.com/Fiestaboard/fiestaboard-plugin--todoist",
+  "documentation": "README.md",
+  "icon": "list-checks",
+  "category": "utility",
+  "fiestaboard_version": ">=9.8.0",
+  "min_refresh_seconds": 60,
+  "oauth": {
+    "provider_name": "Todoist",
+    "flows": [
+      "relay"
+    ],
+    "authorization_url": "https://app.todoist.com/oauth/authorize",
+    "token_url": "https://api.todoist.com/oauth/access_token",
+    "scopes": [
+      "data:read"
+    ],
+    "client_id": "https://fiestaboard.app/auth/clients/todoist.json"
+  },
+  "settings_schema": {
+    "type": "object",
+    "properties": {
+      "enabled": {
+        "type": "boolean",
+        "title": "Enable Todoist",
+        "default": false
+      },
+      "api_key": {
+        "type": "string",
+        "title": "Personal API Token (optional)",
+        "description": "Only if you would rather not use Sign in with Todoist: paste the API token from Todoist > Settings > Integrations > Developer. When you are signed in, the sign-in is used instead.",
+        "ui:widget": "password"
+      },
+      "timezone": {
+        "type": "string",
+        "title": "Time Zone (optional)",
+        "description": "IANA time zone used to decide what counts as today, for example America/New_York. Leave empty to use the board's time zone. Set it to the time zone in your Todoist settings if the two differ.",
+        "default": ""
+      },
+      "refresh_seconds": {
+        "type": "integer",
+        "title": "Refresh Interval (seconds)",
+        "description": "How often to ask Todoist for your tasks.",
+        "default": 300,
+        "minimum": 60,
+        "maximum": 3600
+      }
+    }
+  },
+  "variables": {
+    "groups": {
+      "counts": {
+        "label": "Counts"
+      },
+      "next_task": {
+        "label": "Next Task"
+      },
+      "tasks": {
+        "label": "Task List"
+      }
+    },
+    "simple": {
+      "due_today": {
+        "description": "Tasks due today (not counting overdue ones)",
+        "type": "integer",
+        "max_length": 4,
+        "group": "counts",
+        "example": "3"
+      },
+      "overdue": {
+        "description": "Tasks overdue (due before today)",
+        "type": "integer",
+        "max_length": 4,
+        "group": "counts",
+        "example": "1"
+      },
+      "due_total": {
+        "description": "Tasks due today plus overdue tasks",
+        "type": "integer",
+        "max_length": 4,
+        "group": "counts",
+        "example": "4"
+      },
+      "summary": {
+        "description": "Counts on one line, or ALL CLEAR when nothing is due",
+        "type": "string",
+        "max_length": 22,
+        "group": "counts",
+        "example": "3 TODAY 1 OVERDUE"
+      },
+      "status_tile": {
+        "description": "One colour tile: red when something is overdue, yellow when tasks are due today, green when clear",
+        "type": "string",
+        "max_length": 1,
+        "group": "counts",
+        "example": "{63}"
+      },
+      "all_clear": {
+        "description": "Nothing due today and nothing overdue",
+        "type": "boolean",
+        "group": "counts",
+        "example": "false"
+      },
+      "next_task": {
+        "description": "The task to do next: the oldest overdue task, then today's tasks by time and priority",
+        "type": "string",
+        "max_length": 22,
+        "group": "next_task",
+        "example": "CALL THE PLUMBER"
+      },
+      "next_task_due": {
+        "description": "When the next task is due: OVERDUE, TODAY, or a time like 3:30 PM",
+        "type": "string",
+        "max_length": 8,
+        "group": "next_task",
+        "example": "OVERDUE"
+      },
+      "next_task_priority": {
+        "description": "Priority of the next task as Todoist shows it, P1 (urgent) to P4",
+        "type": "string",
+        "max_length": 2,
+        "group": "next_task",
+        "example": "P1"
+      }
+    },
+    "arrays": {
+      "tasks": {
+        "label_field": "content",
+        "item_fields": {
+          "content": {
+            "description": "Task name",
+            "max_length": 22,
+            "group": "tasks"
+          },
+          "due": {
+            "description": "OVERDUE, TODAY, or a time like 3:30 PM",
+            "max_length": 8,
+            "group": "tasks"
+          },
+          "priority": {
+            "description": "P1 (urgent) to P4",
+            "max_length": 2,
+            "group": "tasks"
+          }
+        }
+      }
+    }
+  },
+  "teaser": "{63} 3 DUE 1 LATE",
+  "previews": [
+    {
+      "device_type": "flagship",
+      "rows": [
+        "    {63} TODOIST",
+        "",
+        "   3 TODAY 1 OVERDUE",
+        "",
+        "        NEXT UP",
+        "   CALL THE PLUMBER"
+      ]
+    },
+    {
+      "device_type": "note",
+      "rows": [
+        "{63} TODOIST",
+        "3 TODAY 1 LATE",
+        "CALL THE PLUMB"
+      ]
+    },
+    {
+      "label": "Task list",
+      "device_type": "flagship",
+      "rows": [
+        "{63} 3 TODAY 1 OVERDUE",
+        "CALL THE PLUMBER",
+        "WATER THE FERNS",
+        "RENEW LIBRARY BOOKS",
+        "PACK GYM BAG",
+        ""
+      ]
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "docs/board-display.png",
+      "alt": "Todoist on a FiestaBoard: tasks due today, overdue tasks and the next task",
+      "caption": "The default template",
+      "primary": true
+    }
+  ],
+  "demo": {
+    "flagship": {
+      "name": "Todoist Demo",
+      "template": [
+        "{{todoist.status_tile}} TODOIST",
+        "",
+        "{{todoist.summary}}",
+        "",
+        "NEXT UP",
+        "{{todoist.next_task}}"
+      ],
+      "line_metadata": [
+        {"alignment": "center", "wrap": false},
+        {"alignment": "center", "wrap": false},
+        {"alignment": "center", "wrap": false},
+        {"alignment": "center", "wrap": false},
+        {"alignment": "center", "wrap": false},
+        {"alignment": "center", "wrap": false}
+      ]
+    },
+    "note": {
+      "name": "Todoist (Note)",
+      "template": [
+        "{{todoist.status_tile}} TODOIST",
+        "{{todoist.due_today}} TODAY {{todoist.overdue}} LATE",
+        "{{todoist.next_task}}"
+      ],
+      "line_metadata": [
+        {"alignment": "left", "wrap": false},
+        {"alignment": "left", "wrap": false},
+        {"alignment": "left", "wrap": false}
+      ]
+    }
+  }
+}
